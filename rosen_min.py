@@ -5,6 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm, ticker
 from matplotlib.colors import LogNorm
 from matplotlib.legend_handler import HandlerLine2D
+from matplotlib import pyplot
 import numpy as np
 
 
@@ -48,13 +49,13 @@ iters = []
 feval = []
 sol = []
 objective = []
-x0s = []
+#x0s = []
 for i in range(0, 30):
-    x0 = (random(2)-1)*10
-    x0s.append(x0)
+#    x0 = (random(2)-1)*20
+#    x0s.append(x0)
     global it
     it = 0
-    output = minimize(rosen, x0, method='BFGS', callback=bstop, options= {'disp': True})
+    output = minimize(rosen, x0s[i], method=_minimize_dfp, callback=bstop, options= {'disp': True})
     iters.append(it)
     feval.append(output.nfev)
     sol.append(output.x)
@@ -73,10 +74,9 @@ Z = rosen([X, Y])
 levels = np.arange(10, 300, 10)
 plt.contour(X, Y, Z, levels=levels, norm=LogNorm())
 
-xs =  []
-ys = []
+xs = [np.array([-1, -0.5])]
+ys = [rosen(xs[0])]
 minimize(rosen, [-1, -0.5], method='BFGS', callback=bstop, options= {'disp': True})
-
 
 linex = [-1]
 liney = [-0.5]
@@ -87,8 +87,8 @@ for i in xs:
 bfgs_y = list(ys)
 bfgs, = plt.plot(linex, liney, '-o', label='BFGS')
 
-xs =  []
-ys = []
+xs = [np.array([-1, -0.5])]
+ys = [rosen(xs[0])]
 minimize(rosen, [-1, -0.5], method='L-BFGS-B', callback=bstop, options= {'disp': True})
 linex = [-1]
 liney = [-0.5]
@@ -99,9 +99,9 @@ for i in xs:
 lbfgsb_y = list(ys)
 lbfgsb, = plt.plot(linex, liney, '-s', label='L-BFGS-B')
 
-xs =  []
-ys = []
-minimize(rosen, [-1, -0.5], method='Powell', callback=bstop, options= {'disp': True})
+xs = [np.array([-1, -0.5])]
+ys = [rosen(xs[0])]
+minimize(rosen, [-1, -0.5], method=_minimize_dfp, callback=bstop, options= {'disp': True})
 linex = [-1]
 liney = [-0.5]
 for i in xs:
@@ -109,18 +109,23 @@ for i in xs:
     liney.append(i[1])
 
 powell_y = list(ys)
-powell, = plt.plot(linex, liney, '-^', label='Powell')
+powell, = plt.plot(linex, liney, '-^', label='DFP')
 
 plt.legend(handles=[bfgs, lbfgsb, powell])
 
 plt.title('Isolines')
+plt.xlabel('x1')
+plt.ylabel('x2')
 plt.figure()
 b, = plt.plot(bfgs_y, '-o', label='BFGS')
 l, = plt.plot(lbfgsb_y, '-s', label='L-BFGS-B')
-p, = plt.plot(powell_y, '-^', label='Powell')
+p, = plt.plot(powell_y, '-^', label='DFP')
+pyplot.yscale('log')
 plt.grid(True)
 plt.title('Objective')
 plt.legend(handles=[b, l, p])
+plt.xlabel('Number of Iterations')
+plt.ylabel('Objective')
 plt.show()
 
 ##################################################################
